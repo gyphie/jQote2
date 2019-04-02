@@ -7,7 +7,7 @@
  * WTFPL v2 Copyright (C) 2004, Sam Hocevar
  *
  * Date: Fri, May 4th, 2012
- * Version: 0.9.8
+ * Version: 0.9.8 (v4)
  */
 (function($) {
     var JQOTE2_TMPL_UNDEF_ERROR = 'UndefinedTemplateError',
@@ -18,7 +18,9 @@
         STR  = '[object String]',
         FUNC = '[object Function]';
 
-    var n = 1, tag = '%',
+    var TAG_PAIRS = { "(" : ")", "{" : "}", "[" : "]", "<" : ">", "‹": "›", "«": "»", "‘": "’", "“":  "”" };
+
+    var n = 1, tag = ['{{', '}}'],
         qreg = /^[^<]*(<[\w\W]+>)[^>]*$/,
         type_of = Object.prototype.toString;
 
@@ -56,15 +58,17 @@
     }
 
     $.fn.extend({
-        jqote: function(data, t) {
+        jqote: function(data, parentContext, t) {
             var data = type_of.call(data) === ARR ? data : [data],
-                dom = '';
+                dom = '', context;
 
             this.each(function(i) {
                 var fn = $.jqotec(this, t);
 
-                for ( var j=0; j < data.length; j++ )
-                    dom += fn.call(data[j], i, j, data, fn);
+                for (var j = 0; j < data.length; j++) {
+                    context = { that: data[j], data: data, i: i, j: j, parent: parentContext, fn: fn };
+                    dom += fn.call(data[j], i, j, data, context, fn);
+                }
             });
 
             return dom;
@@ -72,10 +76,10 @@
     });
 
     $.each({app: 'append', pre: 'prepend', sub: 'html'}, function(name, method) {
-        $.fn['jqote'+name] = function(elem, data, t) {
-            var ns, regexp, str = $.jqote(elem, data, t),
+        $.fn['jqote'+name] = function(elem, data, parentContext, t) {
+            var ns, regexp, str = $.jqote(elem, data, parentContext, t),
                 $$ = !qreg.test(str) ?
-                    function(str) {return $(document.createTextNode(str));} : $;
+                    function(str) { return $(document.createTextNode(str)); } : function (str) { return $("<div/>").html(str).contents(); };
 
             if ( !!(ns = dotted_ns(lambda(elem))) )
                 regexp = new RegExp('(^|\\.)'+ns.split('.').join('\\.(.*)?')+'(\\.|$)');
@@ -92,9 +96,9 @@
     });
 
     $.extend({
-        jqote: function(elem, data, t) {
-            var str = '', t = t || tag,
-                fn = lambda(elem, t);
+        jqote: function(template, data, parentContext, t) {
+            var str = '', t = t || tag, context,
+                fn = lambda(template, t);
 
             if ( fn === false )
                 raise(new Error('Empty or undefined template passed to $.jqote'), {type: JQOTE2_TMPL_UNDEF_ERROR});
@@ -102,16 +106,32 @@
             data = type_of.call(data) !== ARR ?
                 [data] : data;
 
-            for ( var i=0,l=fn.length; i < l; i++ )
-                for ( var j=0; j < data.length; j++ )
-                    str += fn[i].call(data[j], i, j, data, fn[i]);
+            for (var i = 0, l = fn.length; i < l; i++) {
+                for (var j = 0; j < data.length; j++) {
+                    context = { that: data[j], data: data, i: i, j: j, parent: parentContext, fn: fn[i] };
+                    str += fn[i].call(data[j], i, j, data, context, fn[i]);
+                }
+            }
 
             return str;
         },
 
         jqotec: function(template, t) {
-            var cache, elem, tmpl, t = t || tag,
+            var cache, elem, tmpl, t = t || tag, rev, i
                 type = type_of.call(template);
+
+			var st = "", et = "";
+			if (type_of.call(t) === ARR) {
+				st = tag[0];
+				et = tag[1];
+			} else {
+				st = tag;
+				rev = st.split('').reverse();
+				for (i = 0; i < rev.length; i++) {
+					rev[i] = TAG_PAIRS[rev[i]] || rev[i];
+				}
+				et = rev.join('');
+			}
 
             if ( type === STR && qreg.test(template) ) {
                 elem = tmpl = template;
@@ -130,8 +150,8 @@
 
             var str = '', index,
                 arr = tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]/g, '')
-                    .split('<'+t).join(t+'>\x1b')
-                        .split(t+'>');
+                    .split(st).join(et+'\x1b')
+                        .split(et);
 
             for ( var m=0,l=arr.length; m < l; m++ )
                 str += arr[m].charAt(0) !== '\x1b' ?
@@ -146,7 +166,7 @@
                 '}catch(e){e.type="'+JQOTE2_TMPL_EXEC_ERROR+'";e.args=arguments;e.template=arguments.callee.toString();throw e;}';
 
             try {
-                var fn = new Function('i, j, data, fn', str);
+                var fn = new Function('i, j, data, context, fn', str);
             } catch ( e ) { raise(e, {type: JQOTE2_TMPL_COMP_ERROR}); }
 
             index = elem instanceof jQuery ?
@@ -164,11 +184,11 @@
         },
 
         jqotetag: function(str) {
-            if ( type_of.call(str) === STR ) tag = str;
+            if ( type_of.call(str) === STR || type_of.call(str) === ARR ) tag = str;
         },
 
         jqotenc: function(str) {
-            return str.toString()
+            return (str === undefined ? "undefined" : (str === null ? "null" : str)).toString()
                     .replace(/&(?!\w+;)/g, '&#38;')
                         .split('<').join('&#60;').split('>').join('&#62;')
                             .split('"').join('&#34;').split("'").join('&#39;');
