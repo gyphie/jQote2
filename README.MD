@@ -43,16 +43,16 @@ When a template is run several variables are accessible:
 - `fn` - the current template’s compiled lambda (which comes in handy with recursive calls).
 - `context` - a container object that holds the current values available to the template. `context` is convenient for passing data to nested jQote2 calls.  This allows a "child" template to have access to the context of its parent.
 
-	```javascript
-	context = {
-	  "that": data[j], // data[j] === this
-	  "data": data,
-	  "i": i,
-	  "j": j,
-	  "parent": context, // from the parentContext parameter of the jQote2 functions
-	  "fn": fn
-	};
-	```
+    ```javascript
+    context = {
+      "that": data[j], // data[j] === this
+      "data": data,
+      "i": i,
+      "j": j,
+      "parent": context, // from the parentContext parameter of the jQote2 functions
+      "fn": fn
+    };
+    ```
 - `out` - the processed output string of the template so far.  You may manipulate the out string in any way you wish.  Typical usage is to append the results of some JavaScript logic.
 
 #### **Template Mode Helpers**
@@ -66,19 +66,19 @@ Template mode tags also have 2 helpers.  The `=` and `!` helpers. When appended 
 
 ```html
 <script id="exampleTemplate" type="text/x-template">
-	<p>Hello {{=this.firstName}},</p>
-	{{ if (this.birdList.length === 0) { }}
-		<p>You have no favorite birds.</p>
-	{{ } else { }}
-		<p>Your favorite birds are:</p>
-		<ul data-bird-list-id="{{!this.listID}}">
-			{{ out += $("#nestedTemplate").jqote(this.birdList, context); 
-		</ul>
-	{{ } }}
+    <p>Hello {{=this.firstName}},</p>
+    {{ if (this.birdList.length === 0) { }}
+        <p>You have no favorite birds.</p>
+    {{ } else { }}
+        <p>Your favorite birds are:</p>
+        <ul data-bird-list-id="{{!this.listID}}">
+            {{ out += $("#nestedTemplate").jqote(this.birdList, context); 
+        </ul>
+    {{ } }}
 </script>
 
 <script id="nestedTemplate" type="text/x-template">
-	<li>{{=this.birdNumber}} of {{context.parent.that.totalBirds}} {{=this.name}}</li>
+    <li>{{=this.birdNumber}} of {{context.parent.that.totalBirds}} {{=this.name}}</li>
 </script>
 ```
 
@@ -95,21 +95,21 @@ jQote2 is able to operate on an arbitrary number of templates, each of which may
 
 `data` : object | array of objects
 
-	One or more objects that carry the template’s dynamic data. Each data object that’s passed in here will get merged with any of the templates you called the conversion upon.
+    One or more objects that carry the template’s dynamic data. Each data object that’s passed in here will get merged with any of the templates you called the conversion upon.
 
 `parentContext` : context object
 
-	Used when making nested calls to jQote. The object is placed in the `context.parent` property allowing the nested call to access the parent's `context` object.
+    Used when making nested calls to jQote. The object is placed in the `context.parent` property allowing the nested call to access the parent's `context` object.
 
 `tag` : string | array of strings (optional, defaults to ["{{", "}}"])
 
-	You may use the optional tag parameter to specify different template tag character(s) for a single conversion. See the $.jqotetag function documentation for details on how the `tag` parameter is handled.
+    You may use the optional tag parameter to specify different template tag character(s) for a single conversion. See the $.jqotetag function documentation for details on how the `tag` parameter is handled.
 
 #### **Called upon**
 
 `template` : jQuery object
 
-	Every template within the jQuery collection will be merged with the data array.
+    Every template within the jQuery collection will be merged with the data array.
 
 #### **Example**
 
@@ -140,17 +140,17 @@ This is one of three convenience methods jQote2 has to offer. It allows you to a
 
 `jQuery` : jQuery object
 
-	The returned jQuery object keeps the method chain intact. It is the same object that you called the convenience method upon.
+    The returned jQuery object keeps the method chain intact. It is the same object that you called the convenience method upon.
 
 #### **Parameters**
 
 `template` : jQuery object | jQuery selector | DOM element | array of DOM element | lambda | array of lambda | template string
 
-	This parameter can be passed as about anything you possibly could think of. It’ll work with a collection of template elements (either as jQuery object or array of DOM elements) as well as single template elements (again jQuery object or DOM element).
-	
-	Furthermore you could pass it a single or multiple (just wrap them up in an array) precompiled lambda which gets you the best performance as it will skip the compilation and execute right away.
-	
-	For quick and dirty on-the-fly templating you may also choose to supply a template string which won’t get cached but other than that behaves just as any other template.
+    This parameter can be passed as about anything you possibly could think of. It’ll work with a collection of template elements (either as jQuery object or array of DOM elements) as well as single template elements (again jQuery object or DOM element).
+    
+    Furthermore you could pass it a single or multiple (just wrap them up in an array) precompiled lambda which gets you the best performance as it will skip the compilation and execute right away.
+    
+    For quick and dirty on-the-fly templating you may also choose to supply a template string which won’t get cached but other than that behaves just as any other template.
 
 `data` : object | array of objects
 
@@ -162,7 +162,7 @@ This is one of three convenience methods jQote2 has to offer. It allows you to a
 
 `elem` : jQuery object
 
-	The outcome of the conversion will be appended to every single DOM element within the jQuery object.
+    The outcome of the conversion will be appended to every single DOM element within the jQuery object.
 
 #### **Example**
 
@@ -172,7 +172,7 @@ The “Hello World” example from above rewritten.
 
 <script type="text/html" id="template">
     <![CDATA[
-    I said <strong>{{this.greet + " " + this.who}}</strong> !!!
+    I said <strong>{{this.greet + " " + this.who}}</strong>!!!
     {{ out = out.replace(/John/, 'World'); }}
     ]]>
 </script>
@@ -325,17 +325,17 @@ Please note that on-the-fly template strings won’t get cached as there’s no 
 
 `lambda` : function
 
-	The compiled lambda is merely a JavaScript function like any other. Once called and fired in the context of a data object the lambda returns a “stringified” representation of your template’s and data object’s merge. In most cases this will be an “HTML string”, though it could be anything that goes into a string (i.e. plain text or a JSON string etc.).
+    The compiled lambda is merely a JavaScript function like any other. Once called and fired in the context of a data object the lambda returns a “stringified” representation of your template’s and data object’s merge. In most cases this will be an “HTML string”, though it could be anything that goes into a string (i.e. plain text or a JSON string etc.).
 
-	The lambda’s signature is defined as: ?(i, j, data, context, fn), where fn is a reference to ? (this is important when you need to have recursion within your templates).
+    The lambda’s signature is defined as: ?(i, j, data, context, fn), where fn is a reference to ? (this is important when you need to have recursion within your templates).
 
-	The context object becomes the parentContext when calling a jQote2 method from a template (if you pass context to the nested jQote2 function calls). It allows the inner child calls to reference the state of the parent.
+    The context object becomes the parentContext when calling a jQote2 method from a template (if you pass context to the nested jQote2 function calls). It allows the inner child calls to reference the state of the parent.
 
 #### **Parameters**
 
 `template` : jQuery object | jQuery selector | DOM element | template string
 
-	Please note that only the very first template of a set of matched templates within a supplied jQuery object (or selected by means of a jQuery selector) is chosen for compilation.
+    Please note that only the very first template of a set of matched templates within a supplied jQuery object (or selected by means of a jQuery selector) is chosen for compilation.
 
 `tag` : string | array of strings (optional, defaults to ["{{", "}}"])
 
@@ -389,9 +389,9 @@ Calling this function you will be able to permanently alter jQote2’s default t
 
 `tag` : string | array of strings
 
-	string: The string is matched as the start and is reverse to match the end.  Special paired characters are also "mirrored". These are (, ), {, }, [, ], <, >, ‹, ›, «, », ‘, ’, “, ”. See the examples.
+    string: The string is matched as the start and is reverse to match the end.  Special paired characters are also "mirrored". These are (, ), {, }, [, ], <, >, ‹, ›, «, », ‘, ’, “, ”. See the examples.
 
-	array: Must consist of 2 elements. The first element is matched as the start tag and the second element is matched as the end tag.
+    array: Must consist of 2 elements. The first element is matched as the start tag and the second element is matched as the end tag.
 
 #### **Examples**
 
