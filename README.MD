@@ -1,8 +1,8 @@
 # jQote2 Documentation
 
-> This documentation has been update to reflect the modifications listed below.
+    This documentation has been update to reflect the modifications listed below.
 
-> This documentation was copied from the WayBack Machine at [archive.org](http://archive.org/) because the original source at [http://aefxx.com/api/jqote2-reference/](http://aefxx.com/api/jqote2-reference/) is no longer available.
+    This documentation was copied from the WayBack Machine at [archive.org](http://archive.org/) because the original source at [http://aefxx.com/api/jqote2-reference/](http://aefxx.com/api/jqote2-reference/) is no longer available.
 
 ## Modifications (v4)
 
